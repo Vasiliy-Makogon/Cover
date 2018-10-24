@@ -1,5 +1,6 @@
 {
     "name":"krugozor/cover",
+    "description": "Библиотека на PHP для более удобной работы с массиво-образной структурой данных в рамках ОО-приложений.",
     "type":"library",
     "minimum-stability": "dev",
     "keywords": [
