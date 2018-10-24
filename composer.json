@@ -1,6 +1,7 @@
 {
     "name":"krugozor/cover",
     "type":"library",
+    "minimum-stability": "dev",
     "keywords": [
         "array",
         "arrayobject",
