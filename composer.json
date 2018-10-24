@@ -1,0 +1,25 @@
+{
+    "name":"krugozor/cover",
+    "type":"library",
+    "keywords": [
+        "array",
+        "arrayobject",
+        "object",
+        "object array"
+    ],
+    "require":{
+        "php":">=7.0.0"
+    },
+    "authors": [
+        {
+            "name": "Vasiliy Makogon",
+            "email": "makogon-vs@yandex.ru"
+        }
+    ],
+    "autoload" : {
+        "psr-4" : {
+            "Krugozor\\Cover\\": "src/"
+        }
+    },
+    "license": "Apache-2.0"
+}
