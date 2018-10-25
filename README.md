@@ -3,45 +3,42 @@
 
 ## Как это работает? 
 
-Создадим объект нового типа, наследуемый от базового объекта `\Krugozor\Cover\CoverArray`
+Вы можете создать класс, наследуемый от `CoverArray` или использовать `CoverArray` без наследования. Давайте создадим класс нового типа, наследуемый от базового класса `CoverArray`: 
 
 ```php
-class NewMyType extends \Krugozor\Cover\CoverArray
+class NewType extends \Krugozor\Cover\CoverArray
 {
-
+     
 }
 ```
-Инстанцируем новый объект данного типа. Передадим в конструкторе многомерный массив и посмотрим на структуру, которая получится: 
+Инстанцируем новый объект данного класса. Передадим в конструкторе многомерный массив и посмотрим на структуру, которая получится: 
 
 ```php
-$array = new NewMyType(['foo', 12345, 'element' => array('key1' => 'value1', 'key2' => 'value2')]);
+$array = new NewType(['element_1', 'element_2', 'element_3' => array('key1' => 'value1', 'key2' => 'value2')]);
 print_r($array);
 ```
 результат отладки: 
 ```
-NewMyType Object
+NewType Object
 (
     [data:protected] => Array
         (
-            [0] => foo
-            [1] => 12345
-            [element] => NewMyType Object
+            [0] => element_1
+            [1] => element_2
+            [element_3] => NewType Object
                 (
                     [data:protected] => Array
                         (
                             [key1] => value1
                             [key2] => value2
                         )
-
                 )
-
         )
-
 )
 ```
 Как видно, произошло два крайне важных события: 
-1. Переданные в конструктор массивы преобразовались в тип `NewMyType` - это идеология данной библиотеки.
-2. Все данные объекта `NewMyType` аккуратно сложились в protected-хранилище `data`, что обеспечивает инкапсуляцию данных.
+1. Переданные в конструктор массивы преобразовались в объекты типа `NewType`. Идеология работы данного решения - все массивы, которые становятся свойствами объектов, наследуемых от `CoverArray`, преобразуются в объекты этого же типа.  
+2. Все данные объектов типа `NewType` аккуратно сложились в protected-хранилище `data`, что обеспечивает инкапсуляцию данных.
 
 Давайте попробуем поработать с данными:
 
@@ -51,48 +48,129 @@ echo $array->item(0);
 ```
 результат: 
 ```
-foo
+element_1
 ```
-тоже самое можно сделать так:
+тоже самое можно было сделать и так:
 ```php
 echo $array[0];
 ```
 
-Получим значение свойства `key1` вложенного объекта под ключом `element`: 
+
+
+Получим значение свойства `key1` вложенного объекта под ключом `element_3`: 
 ```php
-echo $array->element->key1;
+echo $array->element_3->key1;
 ```
 результат: 
 ```
 value1
 ```
 
+
+
 Добавим новый элемент в начало стека данных и сразу получим его значение: 
 ```php
-echo $array->prepend('the first element')->getFirst();
+echo $array->prepend('element_0')->getFirst();
 ```
 результат: 
 ```
-the first element
+element_0
 ```
 
-Посчитаем количество элементов у вложенного объекта под ключом `element`: 
+
+
+Взглянем объект:
 ```php
-echo $array->element->count();
+print_r($array);
+```
+результат: 
+```
+NewType Object
+(
+    [data:protected] => Array
+        (
+            [0] => element_0    // новый элемент добавился в начало массива 
+            [1] => element_1
+            [2] => element_2
+            [element_3] => NewType Object
+                (
+                    [data:protected] => Array
+                        (
+                            [key1] => value1
+                            [key2] => value2
+                        )
+                )
+        )
+)
+```
+
+
+
+Посчитаем количество элементов у вложенного объекта под ключом `element_3`: 
+```php
+echo $array->element_3->count();
 ```
 результат: 
 ```
 2
 ```
 
-Добавим новый элемент во вложенный объект под ключом `element` и запросим его значение:
+
+
+Добавим новый элемент во вложенный объект под ключом `element_3`, а после сделаем для него `unset`:
 ```php
-echo $array->element->append('Hellow, PHP!')->item(0);
+$array->element_3->key3 = 'value3';
+print_r($array);
+unset($array->element_3->key3);
+print_r($array);
+
+// или, можно использоваить такую нотацию:
+
+$array['element_3']['key3'] = 'value3';
+print_r($array);
+unset($array['element_3']['key3']);
+print_r($array);
 ```
 результат: 
 ```
-Hellow, PHP!
+NewType Object
+(
+    [data:protected] => Array
+        (
+            [0] => element_0
+            [1] => element_1
+            [2] => element_2
+            [element_3] => NewType Object
+                (
+                    [data:protected] => Array
+                        (
+                            [key1] => value1
+                            [key2] => value2
+                            [key3] => value3
+                        )
+                )
+        )
+)
+NewType Object
+(
+    [data:protected] => Array
+        (
+            [0] => element_0
+            [1] => element_1
+            [2] => element_2
+            [element_3] => NewType Object
+                (
+                    [data:protected] => Array
+                        (
+                            [key1] => value1
+                            [key2] => value2
+                        )
+                )
+        )
+)
 ```
+
+
 
 Получим все данные объекта как массивы:
 ```php
@@ -102,28 +180,27 @@ print_r($array->getDataAsArray());
 ```
 Array
 (
-    [0] => the first element
-    [1] => foo
-    [2] => 12345
-    [element] => Array
+    [0] => element_0
+    [1] => element_1
+    [2] => element_2
+    [element_3] => Array
         (
             [key1] => value1
             [key2] => value2
-            [0] => Hellow, PHP!
         )
-
 )
-
 ```
 
-Что будет, если присвоить массив в объект `NewMyType`?
+
+
+Что будет, если сделать массив свойством объекта `NewType`?
 ```php
 $array->is_array = array(1, 2, 3);
 print_r($array->is_array);
 ```
-Присвоенный массив станет элементом объекта типа `NewMyType`: 
+Присвоенный массив станет элементом объекта типа `NewType`: 
 ```
-NewMyType Object
+NewType Object
 (
     [data:protected] => Array
         (
@@ -131,9 +208,12 @@ NewMyType Object
             [1] => 2
             [2] => 3
         )
-
 )
 ```
+
+
+
+### разница в написании нотации доступа к свойствам
 
 Если запросить не существующее свойство у объекта как свойство, то вернётся NULL:
 ```php
@@ -144,20 +224,23 @@ var_dump($array->non_exists_prop);
 NULL
 ```
 
+
+
 Однако, если запросить не существующее свойство у объекта в массивной нотации доступа, то...  
 ```php
 print_r($array['non_exists_prop']);
 ```
-будет создан пустой объект типа `NewMyType`: 
+будет создан пустой объект типа `NewType`: 
 ```
-NewMyType Object
+NewType Object
 (
     [data:protected] => Array
         (
         )
-
 )
 ```
+
+
 
 ...это позволяет делать цепочки вложенных объектов:
 ```php
@@ -166,23 +249,22 @@ print_r($array['non_exists_prop']);
 ```
 результат: 
 ```
-NewMyType Object
+NewType Object
 (
     [data:protected] => Array
         (
-            [non_exists_prop] => NewMyType Object
+            [non_exists_prop] => NewType Object
                 (
                     [data:protected] => Array
                         (
                             [property] => 1
                         )
-
                 )
-
         )
-
 )
 ```
+
+
 
 ...данная функциональность была создана для PHP-шаблонизации: несуществующие по каким-либо причинам данные не вызывают ошибки при `echo`:
 ```php
