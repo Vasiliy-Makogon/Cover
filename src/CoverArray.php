@@ -223,6 +223,15 @@ class CoverArray implements \IteratorAggregate, \Countable, \ArrayAccess, \Seria
     }
 
     /**
+     * @see array_reverse
+     * @return array
+     */
+    final public function reverse()
+    {
+        return array_reverse($this->data);
+    }
+
+    /**
      * Преобразует все значения массива $in в массивы, если значения
      * каких-либо элементов данных будут объекты текущего типа.
      *
